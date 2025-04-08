@@ -5,25 +5,35 @@ import difflib
 # Load your merged dataset
 @st.cache_data
 def load_data():
-    df1 = pd.read_csv("employees (1).csv")
-    df2 = pd.read_csv("employees (2).csv")
-    df3 = pd.read_csv("employees (3).csv")
-    
-    # merge and clean...
- 
-    
-    # Merge them
+    # Load all five employee datasets
+    df1 = pd.read_csv(r"C:\Users\HP\Downloads\myfolder\employees (1).csv") 
+    df2 = pd.read_csv(r"C:\Users\HP\Downloads\myfolder\employees (2).csv")  
+    df3 = pd.read_csv(r"C:\Users\HP\Downloads\myfolder\employees (3).csv")  
+    df4 = pd.read_csv(r"C:\Users\HP\Downloads\myfolder\employees (4).csv")  
+    df5 = pd.read_csv(r"C:\Users\HP\Downloads\myfolder\employees (5).csv")  
+
+    # Merge datasets on 'user_id'
     merged = df1.merge(df2, on='user_id', how='outer')
     merged = merged.merge(df3, on='user_id', how='outer')
+    merged = merged.merge(df4, on='user_id', how='outer')
+    merged = merged.merge(df5, on='user_id', how='outer')
 
-    # Clean and rename columns
-    merged = merged.drop(columns=['average_okr_score_df2', 'average_kpi_score_df3'], errors='ignore')
+    # Drop duplicate/extra columns if present
+    merged = merged.drop(columns=[
+        'average_okr_score_df2', 
+        'average_kpi_score_df3', 
+        'average_okr_score_df4', 
+        'average_kpi_score_df5'
+    ], errors='ignore')
+
+    # Rename for consistency (only rename if the merged column names are present)
     merged = merged.rename(columns={
         'average_okr_score_df1': 'average_okr_score',
-        'average_kpi_score_df2': 'average_kpi_score'
+        'average_kpi_score_df2': 'average_kpi_score',
+        'average_manager_score_df4': 'average_manager_score',
     })
 
-    # Fill NaN scores with 0 for consistency
+    # Fill missing scores with 0
     for col in ['average_okr_score', 'average_kpi_score', 'average_manager_score']:
         if col in merged.columns:
             merged[col] = merged[col].fillna(0)
@@ -33,11 +43,11 @@ def load_data():
 # Core recommendation function
 def get_best_employees(team_name, df, top_n=5):
     team_name = team_name.strip().lower()
-    team_names = df['team_name'].str.lower().unique()
+    team_names = df['team_name'].dropna().str.lower().unique()
     closest_matches = difflib.get_close_matches(team_name, team_names, n=1, cutoff=0.6)
 
     if not closest_matches:
-        return pd.DataFrame(), difflib.get_close_matches(team_name, df['team_name'].unique(), n=3, cutoff=0.6)
+        return pd.DataFrame(), [], []
 
     matched_team_name = closest_matches[0]
     team_df = df[df['team_name'].str.lower() == matched_team_name]
@@ -80,8 +90,7 @@ if team_name_input:
             st.error("No similar team names found.")
     else:
         st.success(f"Top employees in team '{team_name_input}':")
-        
-        # Display the three sorted tables
+
         st.subheader("Top Employees Ranked by Average OKR Score")
         st.dataframe(top_employees_okr)
 
