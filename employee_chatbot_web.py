@@ -62,9 +62,9 @@ def get_best_employees(team_name, df, top_n=5):
     team_df_sorted_manager = team_df.sort_values(by=['average_manager_score'], ascending=False)
     top_employees_manager = team_df_sorted_manager.head(top_n)
 
-    return top_employees_okr[['user_id', 'full_name', 'average_okr_score', 'year_of_service']], \
-           top_employees_kpi[['user_id', 'full_name', 'average_kpi_score', 'year_of_service']], \
-           top_employees_manager[['user_id', 'full_name', 'average_manager_score', 'year_of_service']], []
+    return top_employees_okr[['user_id', 'full_name', 'average_okr_score', 'year_of_service', 'sum_tardy']], \
+           top_employees_kpi[['user_id', 'full_name', 'average_kpi_score', 'year_of_service', 'sum_tardy']], \
+           top_employees_manager[['user_id', 'full_name', 'average_manager_score', 'year_of_service', 'sum_tardy']], []
 
 # Streamlit UI
 st.title("\U0001F4BC Employee Recommendation Chatbot")
