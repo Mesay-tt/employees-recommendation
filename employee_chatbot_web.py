@@ -11,25 +11,19 @@ def load_data():
     df3 = pd.read_csv("employees (3).csv")
     df4 = pd.read_csv("employees (4).csv")
     df5 = pd.read_csv("employees (5).csv")
-    # merge and clean...
-  
+
     # Merge datasets on 'user_id'
     merged = df1.merge(df2, on='user_id', how='outer')
     merged = merged.merge(df3, on='user_id', how='outer')
+
+    # Drop conflicting columns from df4 and merge
+    df4 = df4.drop(columns=[col for col in df4.columns if col in merged.columns and col != 'user_id'])
     merged = merged.merge(df4, on='user_id', how='outer')
+
+    # Drop conflicting columns from df5 and merge
+    df5 = df5.drop(columns=[col for col in df5.columns if col in merged.columns and col != 'user_id'])
     merged = merged.merge(df5, on='user_id', how='outer')
 
-    # Drop duplicate/extra columns if present
-    merged = merged.drop(columns=[
-        'average_okr_score_df2', 
-        'average_kpi_score_df3', 
-        'average_okr_score_df4', 
-        'average_kpi_score_df5'
-    ], errors='ignore')
-   # ✅ Drop duplicate columns from df4 except 'user_id'
-    df4 = df4.loc[:, ~df4.columns.isin(merged.columns.difference(['user_id']))]
-
-    merged = merged.merge(df4, on='user_id', how='outer')
     # Rename for consistency (only rename if the merged column names are present)
     merged = merged.rename(columns={
         'average_okr_score_df1': 'average_okr_score',
@@ -55,7 +49,7 @@ def get_best_employees(team_name, df, top_n=5):
 
     matched_team_name = closest_matches[0]
     team_df = df[df['team_name'].str.lower() == matched_team_name]
-    
+
     # Sort by average OKR score
     team_df_sorted_okr = team_df.sort_values(by=['average_okr_score'], ascending=False)
     top_employees_okr = team_df_sorted_okr.head(top_n)
@@ -67,13 +61,13 @@ def get_best_employees(team_name, df, top_n=5):
     # Sort by average Manager score
     team_df_sorted_manager = team_df.sort_values(by=['average_manager_score'], ascending=False)
     top_employees_manager = team_df_sorted_manager.head(top_n)
-    
+
     return top_employees_okr[['user_id', 'full_name', 'average_okr_score']], \
            top_employees_kpi[['user_id', 'full_name', 'average_kpi_score']], \
            top_employees_manager[['user_id', 'full_name', 'average_manager_score']], []
 
 # Streamlit UI
-st.title("💼 Employee Recommendation Chatbot")
+st.title("\U0001F4BC Employee Recommendation Chatbot")
 st.write("Enter a team name to get top performing employees based on OKR, KPI, and Manager scores.")
 
 merged_df = load_data()
