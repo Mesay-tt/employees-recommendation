@@ -26,7 +26,10 @@ def load_data():
         'average_okr_score_df4', 
         'average_kpi_score_df5'
     ], errors='ignore')
+   # ✅ Drop duplicate columns from df4 except 'user_id'
+    df4 = df4.loc[:, ~df4.columns.isin(merged.columns.difference(['user_id']))]
 
+    merged = merged.merge(df4, on='user_id', how='outer')
     # Rename for consistency (only rename if the merged column names are present)
     merged = merged.rename(columns={
         'average_okr_score_df1': 'average_okr_score',
