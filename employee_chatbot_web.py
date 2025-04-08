@@ -5,13 +5,14 @@ import difflib
 # Load your merged dataset
 @st.cache_data
 def load_data():
-    # Load all five employee datasets
-    df1 = pd.read_csv(r"C:\Users\HP\Downloads\myfolder\employees (1).csv") 
-    df2 = pd.read_csv(r"C:\Users\HP\Downloads\myfolder\employees (2).csv")  
-    df3 = pd.read_csv(r"C:\Users\HP\Downloads\myfolder\employees (3).csv")  
-    df4 = pd.read_csv(r"C:\Users\HP\Downloads\myfolder\employees (4).csv")  
-    df5 = pd.read_csv(r"C:\Users\HP\Downloads\myfolder\employees (5).csv")  
-
+    # Load all five employee datasets    
+    df1 = pd.read_csv("employees (1).csv")
+    df2 = pd.read_csv("employees (2).csv")
+    df3 = pd.read_csv("employees (3).csv")
+    df2 = pd.read_csv("employees (4).csv")
+    df3 = pd.read_csv("employees (5).csv")
+    # merge and clean...
+  
     # Merge datasets on 'user_id'
     merged = df1.merge(df2, on='user_id', how='outer')
     merged = merged.merge(df3, on='user_id', how='outer')
